@@ -47,6 +47,11 @@
         opacity: 0;
       }
 
+      .topic-container.slide-up {
+        transform: translateY(120px);
+        opacity: 0;
+      }
+
       .topic-container.visible {
         transform: translateY(0);
         opacity: 1;
@@ -112,9 +117,10 @@
           if (container.classList.contains("hidden")) {
             container.classList.remove("hidden");
             textElement.textContent = topic.text;
-            container.classList.add("slide-in");
+            // Start from bottom position for slide up animation
+            container.classList.add("slide-up");
             setTimeout(() => {
-              container.classList.remove("slide-in");
+              container.classList.remove("slide-up");
               container.classList.add("visible");
             }, 50);
           } else {
