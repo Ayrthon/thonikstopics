@@ -52,6 +52,10 @@
         opacity: 1;
       }
 
+      .topic-container.hidden {
+        display: none;
+      }
+
       /* Ensure text wraps nicely if too long */
       .topic-text {
         word-wrap: break-word;
@@ -87,17 +91,36 @@
         const textElement = container.querySelector(".topic-text");
 
         if (!topic) {
+          // Hide the container when no topic is active
           if (currentTopic !== null) {
-            animateTopicChange("No active topic");
+            // Animate out then hide
+            container.classList.remove("visible");
+            container.classList.add("slide-out");
+            setTimeout(() => {
+              container.classList.add("hidden");
+            }, 500);
           } else {
-            textElement.textContent = "No active topic";
+            // Just hide immediately if already no topic
+            container.classList.add("hidden");
           }
           currentTopic = null;
           return;
         }
 
         if (!currentTopic || currentTopic.id !== topic.id) {
-          animateTopicChange(topic.text);
+          // Show container if it was hidden
+          if (container.classList.contains("hidden")) {
+            container.classList.remove("hidden");
+            textElement.textContent = topic.text;
+            container.classList.add("slide-in");
+            setTimeout(() => {
+              container.classList.remove("slide-in");
+              container.classList.add("visible");
+            }, 50);
+          } else {
+            // Normal topic change animation
+            animateTopicChange(topic.text);
+          }
           currentTopic = topic;
         }
       }

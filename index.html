@@ -160,6 +160,16 @@
         transform: translateY(-1px);
       }
 
+      .btn-deactivate {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .btn-deactivate:hover {
+        background: #d97706;
+        transform: translateY(-1px);
+      }
+
       .btn-delete {
         background: #ef4444;
         color: white;
@@ -246,101 +256,13 @@
           </div>
 
           <div class="obs-link">
-            <strong>Netlify Setup:</strong><br />
-            1. Create a <code>netlify/functions</code> folder in your project<br />
-            2. Save the function code below as
-            <code>netlify/functions/topic.js</code><br />
-            3. Deploy to Netlify and use both pages from your Netlify URL<br />
-            <details style="margin-top: 10px">
-              <summary
-                style="cursor: pointer; color: #0369a1; font-weight: 600"
-              >
-                Show Netlify Function Code
-              </summary>
-              <textarea
-                readonly
-                style="
-                  width: 100%;
-                  height: 300px;
-                  margin-top: 10px;
-                  font-family: monospace;
-                  font-size: 12px;
-                  padding: 10px;
-                  border: 1px solid #ccc;
-                  border-radius: 4px;
-                "
-              >
-// netlify/functions/topic.js
-
-// In-memory storage (resets when function cold starts)
-let currentTopic = { activeTopic: null, timestamp: Date.now() };
-
-exports.handler = async (event, context) => {
-  // Enable CORS
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  };
-
-  // Handle preflight requests
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: '',
-    };
-  }
-
-  // Handle POST - Update topic
-  if (event.httpMethod === 'POST') {
-    try {
-      const data = JSON.parse(event.body);
-      currentTopic = {
-        activeTopic: data.activeTopic,
-        timestamp: data.timestamp || Date.now()
-      };
-      
-      console.log('Topic updated:', currentTopic.activeTopic?.text || 'No topic');
-      
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ status: 'ok', topic: currentTopic }),
-      };
-    } catch (error) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Invalid JSON' }),
-      };
-    }
-  }
-
-  // Handle GET - Retrieve current topic
-  if (event.httpMethod === 'GET') {
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(currentTopic),
-    };
-  }
-
-  // Method not allowed
-  return {
-    statusCode: 405,
-    headers,
-    body: JSON.stringify({ error: 'Method not allowed' }),
-  };
-};</textarea
-              >
-              <p style="margin-top: 10px; font-size: 0.9em; color: #666">
-                <strong>Note:</strong> Netlify Functions use in-memory storage,
-                so topics reset when the function "cold starts" (after ~15
-                minutes of inactivity). For persistent storage, consider using
-                Netlify's KV storage or a database.
-              </p>
-            </details>
+            <strong>Netlify Setup:</strong>
+            <a
+              href="#"
+              onclick="showNetlifySetup()"
+              style="color: #0369a1; text-decoration: none; font-weight: 600"
+              >Click here for setup instructions</a
+            >
           </div>
         </div>
 
@@ -408,6 +330,14 @@ exports.handler = async (event, context) => {
         saveToStorage();
       }
 
+      function deactivateTopic() {
+        activeTopicId = null;
+        renderTopics();
+        updateActiveDisplay();
+        notifyOBSDisplay();
+        saveToStorage();
+      }
+
       function renderTopics() {
         const container = document.getElementById("topicsList");
 
@@ -432,7 +362,7 @@ exports.handler = async (event, context) => {
                         ${
                           topic.id !== activeTopicId
                             ? `<button class="btn btn-activate" onclick="activateTopic(${topic.id})">Activate</button>`
-                            : '<span style="color: white; font-weight: 600;">ACTIVE</span>'
+                            : `<button class="btn btn-deactivate" onclick="deactivateTopic()">Deactivate</button>`
                         }
                         <button class="btn btn-delete" onclick="deleteTopic(${
                           topic.id
@@ -524,6 +454,149 @@ exports.handler = async (event, context) => {
             }
           }, 300);
         }, 4000);
+      }
+
+      function showNetlifySetup() {
+        const modal = document.createElement("div");
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+
+        const content = document.createElement("div");
+        content.style.cssText = `
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        `;
+
+        content.innerHTML = `
+            <h3 style="margin-top: 0; color: #333; font-size: 1.5em;">Netlify Setup Instructions</h3>
+            
+            <div style="margin: 20px 0;">
+                <h4 style="color: #0369a1; margin-bottom: 10px;">📁 Project Structure:</h4>
+                <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 14px; overflow-x: auto;">your-project/
+├── index.html          (Management System)
+├── obs-display.html    (OBS Display Page)
+└── netlify/
+    └── functions/
+        └── topic.js    (Serverless Function)</pre>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <h4 style="color: #0369a1; margin-bottom: 10px;">🚀 Deployment Steps:</h4>
+                <ol style="line-height: 1.6;">
+                    <li>Create a <code>netlify/functions/</code> folder in your project</li>
+                    <li>Copy the function code below and save as <code>netlify/functions/topic.js</code></li>
+                    <li>Save this management page as <code>index.html</code></li>
+                    <li>Save the OBS display page as <code>obs-display.html</code></li>
+                    <li>Deploy to Netlify (GitHub/GitLab or drag folder)</li>
+                    <li>Use your Netlify URLs in both browser and OBS</li>
+                </ol>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <h4 style="color: #0369a1; margin-bottom: 10px;">📄 Function Code (netlify/functions/topic.js):</h4>
+                <textarea readonly style="width: 100%; height: 300px; font-family: monospace; font-size: 12px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f8f9fa;">// netlify/functions/topic.js
+
+// In-memory storage (resets when function cold starts)
+let currentTopic = { activeTopic: null, timestamp: Date.now() };
+
+exports.handler = async (event, context) => {
+  // Enable CORS
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  };
+
+  // Handle preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: '',
+    };
+  }
+
+  // Handle POST - Update topic
+  if (event.httpMethod === 'POST') {
+    try {
+      const data = JSON.parse(event.body);
+      currentTopic = {
+        activeTopic: data.activeTopic,
+        timestamp: data.timestamp || Date.now()
+      };
+      
+      console.log('Topic updated:', currentTopic.activeTopic?.text || 'No topic');
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ status: 'ok', topic: currentTopic }),
+      };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid JSON' }),
+      };
+    }
+  }
+
+  // Handle GET - Retrieve current topic
+  if (event.httpMethod === 'GET') {
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(currentTopic),
+    };
+  }
+
+  // Method not allowed
+  return {
+    statusCode: 405,
+    headers,
+    body: JSON.stringify({ error: 'Method not allowed' }),
+  };
+};</textarea>
+            </div>
+
+            <div style="margin: 20px 0; padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                <p style="margin: 0; font-size: 0.9em; color: #92400e;">
+                    <strong>Note:</strong> Netlify Functions use in-memory storage, so topics reset when the function "cold starts" (after ~15 minutes of inactivity). For persistent storage, consider using Netlify's KV storage or a database.
+                </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 25px;">
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                        style="background: #4facfe; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">
+                    Close
+                </button>
+            </div>
+        `;
+
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+
+        // Close on background click
+        modal.addEventListener("click", function (e) {
+          if (e.target === modal) {
+            modal.remove();
+          }
+        });
       }
 
       function saveToStorage() {
