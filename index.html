@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Topic Management System</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .header p {
+        opacity: 0.9;
+        font-size: 1.1em;
+      }
+
+      .main-content {
+        padding: 30px;
+      }
+
+      .add-topic-form {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: #f8f9ff;
+        border-radius: 10px;
+        border: 2px dashed #e0e7ff;
+      }
+
+      .add-topic-form input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+      }
+
+      .add-topic-form input:focus {
+        outline: none;
+        border-color: #4facfe;
+        box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+      }
+
+      .add-topic-form button {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .add-topic-form button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .topics-section {
+        margin-bottom: 30px;
+      }
+
+      .section-title {
+        font-size: 1.5em;
+        color: #333;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      .topics-list {
+        display: grid;
+        gap: 15px;
+      }
+
+      .topic-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: white;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .topic-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .topic-item.active {
+        border-color: #4facfe;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+      }
+
+      .topic-text {
+        font-size: 16px;
+        font-weight: 500;
+        flex: 1;
+      }
+
+      .topic-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-activate {
+        background: #10b981;
+        color: white;
+      }
+
+      .btn-activate:hover {
+        background: #059669;
+        transform: translateY(-1px);
+      }
+
+      .btn-delete {
+        background: #ef4444;
+        color: white;
+      }
+
+      .btn-delete:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+      }
+
+      .active-topic-display {
+        background: #f0f9ff;
+        border: 2px solid #0ea5e9;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .active-topic-title {
+        font-size: 1.2em;
+        color: #0369a1;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .active-topic-text {
+        font-size: 1.5em;
+        color: #333;
+        font-weight: 600;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .obs-link {
+        margin-top: 20px;
+        padding: 15px;
+        background: #fef3c7;
+        border: 2px solid #f59e0b;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .obs-link strong {
+        color: #d97706;
+      }
+
+      .obs-link a {
+        color: #0369a1;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .obs-link a:hover {
+        text-decoration: underline;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #6b7280;
+      }
+
+      .empty-state p {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="main-content">
+        <div class="topics-section">
+          <h2 class="section-title">🎯 Active Topic</h2>
+          <div class="active-topic-display">
+            <div class="active-topic-title">Currently Active Topic:</div>
+            <div class="active-topic-text" id="activeTopicDisplay">
+              No active topic selected
+            </div>
+          </div>
+
+          <div class="obs-link">
+            <strong>Netlify Setup:</strong><br />
+            1. Create a <code>netlify/functions</code> folder in your project<br />
+            2. Save the function code below as
+            <code>netlify/functions/topic.js</code><br />
+            3. Deploy to Netlify and use both pages from your Netlify URL<br />
+            <details style="margin-top: 10px">
+              <summary
+                style="cursor: pointer; color: #0369a1; font-weight: 600"
+              >
+                Show Netlify Function Code
+              </summary>
+              <textarea
+                readonly
+                style="
+                  width: 100%;
+                  height: 300px;
+                  margin-top: 10px;
+                  font-family: monospace;
+                  font-size: 12px;
+                  padding: 10px;
+                  border: 1px solid #ccc;
+                  border-radius: 4px;
+                "
+              >
+// netlify/functions/topic.js
+
+// In-memory storage (resets when function cold starts)
+let currentTopic = { activeTopic: null, timestamp: Date.now() };
+
+exports.handler = async (event, context) => {
+  // Enable CORS
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  };
+
+  // Handle preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: '',
+    };
+  }
+
+  // Handle POST - Update topic
+  if (event.httpMethod === 'POST') {
+    try {
+      const data = JSON.parse(event.body);
+      currentTopic = {
+        activeTopic: data.activeTopic,
+        timestamp: data.timestamp || Date.now()
+      };
+      
+      console.log('Topic updated:', currentTopic.activeTopic?.text || 'No topic');
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ status: 'ok', topic: currentTopic }),
+      };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid JSON' }),
+      };
+    }
+  }
+
+  // Handle GET - Retrieve current topic
+  if (event.httpMethod === 'GET') {
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(currentTopic),
+    };
+  }
+
+  // Method not allowed
+  return {
+    statusCode: 405,
+    headers,
+    body: JSON.stringify({ error: 'Method not allowed' }),
+  };
+};</textarea
+              >
+              <p style="margin-top: 10px; font-size: 0.9em; color: #666">
+                <strong>Note:</strong> Netlify Functions use in-memory storage,
+                so topics reset when the function "cold starts" (after ~15
+                minutes of inactivity). For persistent storage, consider using
+                Netlify's KV storage or a database.
+              </p>
+            </details>
+          </div>
+        </div>
+
+        <div class="add-topic-form">
+          <input
+            type="text"
+            id="topicInput"
+            placeholder="Enter a new topic..."
+            maxlength="100"
+          />
+          <button onclick="addTopic()">Add Topic</button>
+        </div>
+
+        <div class="topics-section">
+          <h2 class="section-title">📋 Topics List</h2>
+          <div class="topics-list" id="topicsList">
+            <div class="empty-state">
+              <p>No topics yet!</p>
+              <p style="font-size: 0.9em; opacity: 0.7">
+                Add your first topic above to get started.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let topics = [];
+      let activeTopicId = null;
+
+      function addTopic() {
+        const input = document.getElementById("topicInput");
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        const topic = {
+          id: Date.now(),
+          text: text,
+        };
+
+        topics.push(topic);
+        input.value = "";
+        renderTopics();
+        saveToStorage();
+      }
+
+      function deleteTopic(id) {
+        topics = topics.filter((topic) => topic.id !== id);
+        if (activeTopicId === id) {
+          activeTopicId = null;
+          updateActiveDisplay();
+          notifyOBSDisplay();
+        }
+        renderTopics();
+        saveToStorage();
+      }
+
+      function activateTopic(id) {
+        activeTopicId = id;
+        renderTopics();
+        updateActiveDisplay();
+        notifyOBSDisplay();
+        saveToStorage();
+      }
+
+      function renderTopics() {
+        const container = document.getElementById("topicsList");
+
+        if (topics.length === 0) {
+          container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No topics yet!</p>
+                        <p style="font-size: 0.9em; opacity: 0.7;">Add your first topic above to get started.</p>
+                    </div>
+                `;
+          return;
+        }
+
+        container.innerHTML = topics
+          .map(
+            (topic) => `
+                <div class="topic-item ${
+                  topic.id === activeTopicId ? "active" : ""
+                }">
+                    <div class="topic-text">${topic.text}</div>
+                    <div class="topic-actions">
+                        ${
+                          topic.id !== activeTopicId
+                            ? `<button class="btn btn-activate" onclick="activateTopic(${topic.id})">Activate</button>`
+                            : '<span style="color: white; font-weight: 600;">ACTIVE</span>'
+                        }
+                        <button class="btn btn-delete" onclick="deleteTopic(${
+                          topic.id
+                        })">Delete</button>
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      function updateActiveDisplay() {
+        const display = document.getElementById("activeTopicDisplay");
+        const activeTopic = topics.find((topic) => topic.id === activeTopicId);
+
+        display.textContent = activeTopic
+          ? activeTopic.text
+          : "No active topic selected";
+      }
+
+      function notifyOBSDisplay() {
+        // Store the active topic data for local display
+        const activeTopic = topics.find((topic) => topic.id === activeTopicId);
+        localStorage.setItem(
+          "obsActiveTopic",
+          JSON.stringify(activeTopic || null)
+        );
+
+        // Send to simple HTTP server
+        sendToServer(activeTopic);
+      }
+
+      async function sendToServer(activeTopic) {
+        try {
+          const response = await fetch("/.netlify/functions/topic", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              activeTopic: activeTopic || null,
+              timestamp: Date.now(),
+            }),
+          });
+
+          if (response.ok) {
+            showNotification("Topic updated!", "success");
+          } else {
+            throw new Error("Server not responding");
+          }
+        } catch (error) {
+          console.log("Server communication failed:", error);
+          showNotification(
+            "Failed to update topic. Check Netlify function.",
+            "warning"
+          );
+        }
+      }
+
+      function showNotification(message, type = "success") {
+        // Create notification element
+        const notification = document.createElement("div");
+        const bgColor = type === "success" ? "#10b981" : "#f59e0b";
+        notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${bgColor};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-weight: 600;
+                max-width: 300px;
+                transition: all 0.3s ease;
+            `;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Remove after 4 seconds
+        setTimeout(() => {
+          notification.style.opacity = "0";
+          notification.style.transform = "translateX(100%)";
+          setTimeout(() => {
+            if (notification.parentNode) {
+              document.body.removeChild(notification);
+            }
+          }, 300);
+        }, 4000);
+      }
+
+      function saveToStorage() {
+        localStorage.setItem("topics", JSON.stringify(topics));
+        localStorage.setItem("activeTopicId", activeTopicId);
+      }
+
+      function loadFromStorage() {
+        const savedTopics = localStorage.getItem("topics");
+        const savedActiveId = localStorage.getItem("activeTopicId");
+
+        if (savedTopics) {
+          topics = JSON.parse(savedTopics);
+        }
+        if (savedActiveId && savedActiveId !== "null") {
+          activeTopicId = parseInt(savedActiveId);
+        }
+
+        renderTopics();
+        updateActiveDisplay();
+        notifyOBSDisplay();
+      }
+
+      // Handle Enter key in input
+      document
+        .getElementById("topicInput")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            addTopic();
+          }
+        });
+
+      // Load data on page load
+      loadFromStorage();
+    </script>
+  </body>
+</html>
