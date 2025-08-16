@@ -272,7 +272,22 @@
             id="topicInput"
             placeholder="Enter a new topic..."
             maxlength="100"
+            oninput="updateCharacterCount()"
           />
+          <div
+            id="charCount"
+            style="
+              position: absolute;
+              right: 12px;
+              top: 50%;
+              transform: translateY(-50%);
+              font-size: 12px;
+              color: #6b7280;
+              pointer-events: none;
+            "
+          >
+            100
+          </div>
           <button onclick="addTopic()">Add Topic</button>
         </div>
 
@@ -309,6 +324,24 @@
         input.value = "";
         renderTopics();
         saveToStorage();
+        updateCharacterCount();
+      }
+
+      function updateCharacterCount() {
+        const input = document.getElementById("topicInput");
+        const counter = document.getElementById("charCount");
+        const remaining = 100 - input.value.length;
+
+        counter.textContent = remaining;
+
+        // Change color based on remaining characters
+        if (remaining <= 10) {
+          counter.style.color = "#ef4444"; // Red when getting close to limit
+        } else if (remaining <= 25) {
+          counter.style.color = "#f59e0b"; // Orange when halfway
+        } else {
+          counter.style.color = "#6b7280"; // Gray default
+        }
       }
 
       function deleteTopic(id) {
