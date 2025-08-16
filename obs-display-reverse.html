@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OBS Topic Display</title>
+    <title>OBS Topic Display - Reverse</title>
     <style>
       body {
         margin: 0;
@@ -38,17 +38,17 @@
       }
 
       .topic-container.slide-out {
-        transform: translateY(120px);
-        opacity: 0;
-      }
-
-      .topic-container.slide-in {
         transform: translateY(-120px);
         opacity: 0;
       }
 
-      .topic-container.slide-up {
+      .topic-container.slide-in {
         transform: translateY(120px);
+        opacity: 0;
+      }
+
+      .topic-container.slide-down {
+        transform: translateY(-120px);
         opacity: 0;
       }
 
@@ -98,9 +98,9 @@
         if (!topic) {
           // Hide the container when no topic is active
           if (currentTopic !== null) {
-            // Animate out then hide
+            // Animate out then hide (slide up to top)
             container.classList.remove("visible");
-            container.classList.add("slide-up");
+            container.classList.add("slide-out");
             setTimeout(() => {
               container.classList.add("hidden");
             }, 500);
@@ -117,10 +117,10 @@
           if (container.classList.contains("hidden")) {
             container.classList.remove("hidden");
             textElement.textContent = topic.text;
-            // Start from bottom position for slide up animation
-            container.classList.add("slide-out");
+            // Start from top position for slide down animation
+            container.classList.add("slide-down");
             setTimeout(() => {
-              container.classList.remove("slide-out");
+              container.classList.remove("slide-down");
               container.classList.add("visible");
             }, 50);
           } else {
@@ -135,12 +135,12 @@
         const container = document.getElementById("topicContainer");
         const textElement = container.querySelector(".topic-text");
 
-        // Slide out current topic
+        // Slide out current topic (up to top)
         container.classList.remove("visible");
-        container.classList.add("slide-up");
+        container.classList.add("slide-out");
 
         setTimeout(() => {
-          // Change text and prepare for slide in
+          // Change text and prepare for slide in (from bottom)
           textElement.textContent = newText;
           container.classList.remove("slide-out");
           container.classList.add("slide-in");
