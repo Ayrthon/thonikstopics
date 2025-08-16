@@ -100,7 +100,7 @@
           if (currentTopic !== null) {
             // Animate out then hide
             container.classList.remove("visible");
-            container.classList.add("slide-down");
+            container.classList.add("slide-up");
             setTimeout(() => {
               container.classList.add("hidden");
             }, 500);
@@ -137,7 +137,7 @@
 
         // Slide out current topic
         container.classList.remove("visible");
-        container.classList.add("slide-out");
+        container.classList.add("slide-up");
 
         setTimeout(() => {
           // Change text and prepare for slide in
