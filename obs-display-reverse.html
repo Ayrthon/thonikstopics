@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OBS Topic Display</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        background: transparent;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .topic-container {
+        width: 950px;
+        height: 100px;
+        background: white;
+        border: 3px solid #333;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 600;
+        color: black;
+        text-align: center;
+        padding: 0 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
+      }
+
+      .topic-container.slide-out {
+        transform: translateY(120px);
+        opacity: 0;
+      }
+
+      .topic-container.slide-in {
+        transform: translateY(-120px);
+        opacity: 0;
+      }
+
+      .topic-container.slide-up {
+        transform: translateY(120px);
+        opacity: 0;
+      }
+
+      .topic-container.visible {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .topic-container.hidden {
+        display: none;
+      }
+
+      /* Ensure text wraps nicely if too long */
+      .topic-text {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topic-container visible" id="topicContainer">
+      <div class="topic-text">No active topic</div>
+    </div>
+
+    <script>
+      let currentTopic = null;
+
+      async function loadTopicFromServer() {
+        try {
+          const response = await fetch("/.netlify/functions/topic");
+          if (response.ok) {
+            const data = await response.json();
+            return data.activeTopic;
+          }
+        } catch (error) {
+          console.log("Server connection failed:", error);
+        }
+        return null;
+      }
+
+      async function updateDisplay() {
+        const topic = await loadTopicFromServer();
+        const container = document.getElementById("topicContainer");
+        const textElement = container.querySelector(".topic-text");
+
+        if (!topic) {
+          // Hide the container when no topic is active
+          if (currentTopic !== null) {
+            // Animate out then hide
+            container.classList.remove("visible");
+            container.classList.add("slide-down");
+            setTimeout(() => {
+              container.classList.add("hidden");
+            }, 500);
+          } else {
+            // Just hide immediately if already no topic
+            container.classList.add("hidden");
+          }
+          currentTopic = null;
+          return;
+        }
+
+        if (!currentTopic || currentTopic.id !== topic.id) {
+          // Show container if it was hidden
+          if (container.classList.contains("hidden")) {
+            container.classList.remove("hidden");
+            textElement.textContent = topic.text;
+            // Start from bottom position for slide up animation
+            container.classList.add("slide-out");
+            setTimeout(() => {
+              container.classList.remove("slide-out");
+              container.classList.add("visible");
+            }, 50);
+          } else {
+            // Normal topic change animation
+            animateTopicChange(topic.text);
+          }
+          currentTopic = topic;
+        }
+      }
+
+      function animateTopicChange(newText) {
+        const container = document.getElementById("topicContainer");
+        const textElement = container.querySelector(".topic-text");
+
+        // Slide out current topic
+        container.classList.remove("visible");
+        container.classList.add("slide-out");
+
+        setTimeout(() => {
+          // Change text and prepare for slide in
+          textElement.textContent = newText;
+          container.classList.remove("slide-out");
+          container.classList.add("slide-in");
+
+          // Small delay then slide in
+          setTimeout(() => {
+            container.classList.remove("slide-in");
+            container.classList.add("visible");
+          }, 50);
+        }, 250);
+      }
+
+      // Check for updates every 1 second
+      setInterval(updateDisplay, 1000);
+
+      // Initial display
+      updateDisplay();
+
+      // Also check when page gets focus
+      window.addEventListener("focus", function () {
+        updateDisplay();
+      });
+    </script>
+  </body>
+</html>
